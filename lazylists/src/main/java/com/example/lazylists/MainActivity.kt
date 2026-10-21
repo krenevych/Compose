@@ -37,18 +37,30 @@ data class CardData(
 )
 
 class MainActivity : ComponentActivity() {
+
+    private val cards = mutableListOf(CardData())
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             ComposeTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Column(modifier = Modifier.padding(innerPadding)) {
-                            ExpandableCard(cardData = CardData(title="Title"))
-                    }
+                    CardsContainer(
+                        modifier = Modifier.padding(innerPadding)
+                    )
                 }
             }
         }
+    }
+}
+
+@Composable
+fun CardsContainer(modifier: Modifier) {
+    Column(
+        modifier = modifier,
+    ) {
+            ExpandableCard(cardData = CardData(title = "Title"))
     }
 }
 
@@ -109,6 +121,6 @@ fun ExpandableCard(
 @Composable
 fun ExpandableCardPreview() {
     ComposeTheme {
-        ExpandableCard(cardData = CardData())
+        CardsContainer(modifier = Modifier)
     }
 }
