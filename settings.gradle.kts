@@ -26,3 +26,4 @@ rootProject.name = "Compose"
 include(":app")
 include(":clickcounter")
 include(":lazylists")
+include(":broadcast")
