@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -31,6 +30,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.lazylists.ui.theme.ComposeTheme
 
+data class CardData(
+    val title: String = "Заголовок картки",
+    val description: String = "Це дуже детальний опис для цієї картки, який з'являється після того, як ви натиснете кнопку розгортання. Тут може бути багато тексту та іншої корисної інформації.",
+    val creationTime: String = "2023-10-27 15:30"
+)
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,11 +44,7 @@ class MainActivity : ComponentActivity() {
             ComposeTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Column(modifier = Modifier.padding(innerPadding)) {
-                        ExpandableCard(
-                            title = "Заголовок картки",
-                            description = "Це дуже детальний опис для цієї картки, який з'являється після того, як ви натиснете кнопку розгортання. Тут може бути багато тексту та іншої корисної інформації.",
-                            creationTime = "2023-10-27 15:30"
-                        )
+                            ExpandableCard(cardData = CardData(title="Title"))
                     }
                 }
             }
@@ -53,10 +54,8 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun ExpandableCard(
-    title: String,
-    description: String,
-    creationTime: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    cardData: CardData
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -77,7 +76,7 @@ fun ExpandableCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = title,
+                    text = cardData.title,
                     style = MaterialTheme.typography.titleLarge
                 )
                 TextButton(onClick = { expanded = !expanded }) {
@@ -87,12 +86,12 @@ fun ExpandableCard(
             if (expanded) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = description,
+                    text = cardData.description,
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Створено: $creationTime",
+                    text = "Створено: ${cardData.creationTime}",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -100,7 +99,6 @@ fun ExpandableCard(
         }
     }
 }
-
 
 @Preview(showBackground = true, name = "Light Mode")
 @Preview(
@@ -111,11 +109,6 @@ fun ExpandableCard(
 @Composable
 fun ExpandableCardPreview() {
     ComposeTheme {
-        ExpandableCard(
-            title = "Приклад картки",
-            description = "Це короткий опис, який демонструє розгорнутий стан на прев'ю.",
-            creationTime = "12:00, Сьогодні"
-        )
+        ExpandableCard(cardData = CardData())
     }
 }
-
