@@ -14,6 +14,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -21,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -29,6 +33,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.lazylists.ui.theme.ComposeTheme
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 data class CardData(
     val title: String = "Заголовок картки",
@@ -38,16 +44,28 @@ data class CardData(
 
 class MainActivity : ComponentActivity() {
 
-    private val cards = mutableListOf(CardData())
+    private val cards = mutableStateListOf<CardData>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         setContent {
             ComposeTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     CardsContainer(
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = Modifier.padding(innerPadding),
+                        cards = cards,
+                        onAddCard = {
+                            val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")
+                            val currentTime = LocalDateTime.now().format(formatter)
+                            cards.add(
+                                CardData(
+                                    title = "Title ${cards.size + 1}",
+                                    creationTime = currentTime
+                                )
+                            )
+                        }
                     )
                 }
             }
@@ -56,11 +74,29 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun CardsContainer(modifier: Modifier) {
-    Column(
-        modifier = modifier,
-    ) {
-            ExpandableCard(cardData = CardData(title = "Title"))
+fun CardsContainer(
+    modifier: Modifier = Modifier,
+    cards: List<CardData>,
+    onAddCard: () -> Unit
+) {
+    Column(modifier = modifier.fillMaxSize()) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1.0f)
+        ) {
+            items(cards) { card ->
+                ExpandableCard(cardData = card)
+            }
+        }
+        Button(
+            onClick = onAddCard,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text("Add card")
+        }
     }
 }
 
@@ -121,6 +157,10 @@ fun ExpandableCard(
 @Composable
 fun ExpandableCardPreview() {
     ComposeTheme {
-        CardsContainer(modifier = Modifier)
+        CardsContainer(
+            modifier = Modifier,
+            cards = listOf(CardData()),
+            onAddCard = {}
+        )
     }
 }
