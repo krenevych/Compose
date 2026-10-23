@@ -40,9 +40,10 @@ var receivedMessage by mutableStateOf("Hello")
             ComposeTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     BroadcastScreen(
-                        context = this,
                         receivedMessage = receivedMessage,
                         modifier = Modifier.padding(innerPadding),
+                        onBroadcast1 = { sendBroadcast(this, ACTION_BROADCAST_1)},
+                        onBroadcast2 = { sendBroadcast(this, ACTION_BROADCAST_2)}
                     )
                 }
             }
@@ -86,8 +87,9 @@ fun sendBroadcast(context: Context, action: String) {
 @Composable
 fun BroadcastScreen(
     receivedMessage: String,
-    context: Context,
     modifier: Modifier = Modifier,
+    onBroadcast1 : () -> Unit = {},
+    onBroadcast2 : () -> Unit ={},
 ) {
     Column(
         modifier = modifier
@@ -102,18 +104,14 @@ fun BroadcastScreen(
         )
 
         Button(
-            onClick = {
-                sendBroadcast(context, ACTION_BROADCAST_1)
-            },
+            onClick = onBroadcast1,
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(text = "Send broadcast1")
         }
 
         Button(
-            onClick = {
-                sendBroadcast(context, ACTION_BROADCAST_2)
-            },
+            onClick = onBroadcast2,
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(text = "Send broadcast 2")
@@ -133,10 +131,12 @@ fun BroadcastScreen(
     }
 }
 
-//@Preview(showBackground = true)
-//@Composable
-//fun BroadcastScreenPreview() {
-//    ComposeTheme {
-//        BroadcastScreen(receivedMessage = "Preview status text")
-//    }
-//}
+@Preview(showBackground = true)
+@Composable
+fun BroadcastScreenPreview() {
+    ComposeTheme {
+        BroadcastScreen(
+            receivedMessage = "Preview status text",
+        )
+    }
+}
