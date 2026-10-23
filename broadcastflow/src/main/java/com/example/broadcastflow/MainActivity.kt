@@ -7,6 +7,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -28,10 +29,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.example.broadcastflow.ui.theme.ComposeTheme
+import kotlin.getValue
 
 class MainActivity : ComponentActivity() {
 
-var receivedMessage by mutableStateOf("Hello")
+    private val viewModel by viewModels<TrackerViewModel>()
+
+    var receivedMessage by mutableStateOf("Hello")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,8 +46,8 @@ var receivedMessage by mutableStateOf("Hello")
                     BroadcastScreen(
                         receivedMessage = receivedMessage,
                         modifier = Modifier.padding(innerPadding),
-                        onBroadcast1 = { sendBroadcast(this, ACTION_BROADCAST_1)},
-                        onBroadcast2 = { sendBroadcast(this, ACTION_BROADCAST_2)}
+                        onBroadcast1 = { sendBroadcast(this, ACTION_BROADCAST_1) },
+                        onBroadcast2 = { sendBroadcast(this, ACTION_BROADCAST_2) }
                     )
                 }
             }
@@ -88,8 +92,8 @@ fun sendBroadcast(context: Context, action: String) {
 fun BroadcastScreen(
     receivedMessage: String,
     modifier: Modifier = Modifier,
-    onBroadcast1 : () -> Unit = {},
-    onBroadcast2 : () -> Unit ={},
+    onBroadcast1: () -> Unit = {},
+    onBroadcast2: () -> Unit = {},
 ) {
     Column(
         modifier = modifier
