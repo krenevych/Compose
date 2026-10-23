@@ -15,6 +15,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 class DownloadService : Service() {
 
@@ -73,7 +74,7 @@ class DownloadService : Service() {
         
         serviceScope.launch {
             for (i in 1..10) {
-                delay(1000) // Симуляція довгої роботи (1 секунда на крок)
+                delay(1000.milliseconds) // Симуляція довгої роботи (1 секунда на крок)
                 Log.d(TAG, "startDownloading: Завантажено ${i * 10}%")
             }
             Log.d(TAG, "startDownloading: Завантаження завершено!")
