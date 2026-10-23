@@ -1,5 +1,8 @@
 package com.example.broadcastflow
 
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -23,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import com.example.broadcastflow.ui.theme.ComposeTheme
 
 class MainActivity : ComponentActivity() {
@@ -36,6 +40,7 @@ var receivedMessage by mutableStateOf("Hello")
             ComposeTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     BroadcastScreen(
+                        context = this,
                         receivedMessage = receivedMessage,
                         modifier = Modifier.padding(innerPadding),
                     )
@@ -43,11 +48,45 @@ var receivedMessage by mutableStateOf("Hello")
             }
         }
     }
+
+    private val receiver = MyBroadcastReceiver()
+
+    override fun onStart() {
+        super.onStart()
+
+        val filter = IntentFilter().apply {
+            addAction(Intent.ACTION_BATTERY_LOW)
+            addAction(Intent.ACTION_AIRPLANE_MODE_CHANGED)
+            addAction(ACTION_BROADCAST_1)
+            addAction(ACTION_BROADCAST_2)
+        }
+
+        ContextCompat.registerReceiver(
+            this,
+            receiver,
+            filter,
+            ContextCompat.RECEIVER_EXPORTED
+        )
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        unregisterReceiver(receiver)
+    }
+}
+
+fun sendBroadcast(context: Context, action: String) {
+    val intent = Intent(action).apply {
+        setPackage("com.example.broadcastflow")
+    }
+    context.sendBroadcast(intent)
 }
 
 @Composable
 fun BroadcastScreen(
     receivedMessage: String,
+    context: Context,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -64,7 +103,7 @@ fun BroadcastScreen(
 
         Button(
             onClick = {
-                TODO()
+                sendBroadcast(context, ACTION_BROADCAST_1)
             },
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -73,7 +112,7 @@ fun BroadcastScreen(
 
         Button(
             onClick = {
-                TODO()
+                sendBroadcast(context, ACTION_BROADCAST_2)
             },
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -94,10 +133,10 @@ fun BroadcastScreen(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun BroadcastScreenPreview() {
-    ComposeTheme {
-        BroadcastScreen(receivedMessage = "Preview status text")
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun BroadcastScreenPreview() {
+//    ComposeTheme {
+//        BroadcastScreen(receivedMessage = "Preview status text")
+//    }
+//}
