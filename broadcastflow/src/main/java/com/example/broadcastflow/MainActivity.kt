@@ -20,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -28,6 +29,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.broadcastflow.ui.theme.ComposeTheme
 import kotlin.getValue
 
@@ -35,14 +38,14 @@ class MainActivity : ComponentActivity() {
 
     private val viewModel by viewModels<TrackerViewModel>()
 
-    var receivedMessage by mutableStateOf("Hello")
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             ComposeTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    val receivedMessage by viewModel.tracker.collectAsStateWithLifecycle()
+
                     BroadcastScreen(
                         receivedMessage = receivedMessage,
                         modifier = Modifier.padding(innerPadding),
@@ -54,31 +57,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private val receiver = MyBroadcastReceiver()
-
-    override fun onStart() {
-        super.onStart()
-
-        val filter = IntentFilter().apply {
-            addAction(Intent.ACTION_BATTERY_LOW)
-            addAction(Intent.ACTION_AIRPLANE_MODE_CHANGED)
-            addAction(ACTION_BROADCAST_1)
-            addAction(ACTION_BROADCAST_2)
-        }
-
-        ContextCompat.registerReceiver(
-            this,
-            receiver,
-            filter,
-            ContextCompat.RECEIVER_EXPORTED
-        )
-    }
-
-    override fun onStop() {
-        super.onStop()
-
-        unregisterReceiver(receiver)
-    }
 }
 
 fun sendBroadcast(context: Context, action: String) {
