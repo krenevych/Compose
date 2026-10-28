@@ -1,10 +1,12 @@
 package com.example.boundservice
 
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -39,13 +41,65 @@ import kotlinx.coroutines.flow.MutableStateFlow
 
 class MainActivity : ComponentActivity() {
 
+//    val TAG = MainActivity::class.java.simpleName
+    val TAG = "XXX"
+
+    var musicService: MusicPlayerService? = null
+
+    private val connection = object : ServiceConnection {
+        override fun onServiceConnected(
+            name: ComponentName?,
+            serviceBinder: IBinder?
+        ) {
+            val binder = serviceBinder as MusicPlayerService.LocalBinder
+            musicService = binder.getService()
+            Log.d(TAG, "Службу підключено!")
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            musicService = null
+        }
+
+    }
+
+    override fun onStart() {
+        super.onStart()
+        val intent = Intent(this, MusicPlayerService::class.java)
+        bindService(intent, connection, Context.BIND_AUTO_CREATE)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        unbindService(connection)
+        musicService = null
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             ComposeTheme {
+
+                var currentTrack by remember { mutableStateOf("") }
+
+                val progress by (musicService?.progress ?: MutableStateFlow(0f)).collectAsState()
+
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     MediaPlayerScreen(
+                        currentTrack = currentTrack,
+                        progress = progress,
+                        onPlayClick = {
+                            currentTrack = musicService?.playMusic() ?: UNDEFINED_TRACK
+                        },
+                        onPauseClick = {
+                            currentTrack = musicService?.pauseMusic() ?: UNDEFINED_TRACK
+                        },
+                        onNextTrack = {
+                            currentTrack = musicService?.nextTrack() ?: UNDEFINED_TRACK
+                        },
+                        onPreviousTrack = {
+                            currentTrack = musicService?.previousTrack() ?: UNDEFINED_TRACK
+                        },
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -53,6 +107,9 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    companion object {
+        const val UNDEFINED_TRACK = "Unknown"
+    }
 
 }
 
