@@ -1,6 +1,10 @@
 package com.example.boundservice
 
+import android.content.ComponentName
+import android.content.Intent
+import android.content.ServiceConnection
 import android.os.Bundle
+import android.os.IBinder
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -9,15 +13,18 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,8 +35,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.boundservice.ui.theme.ComposeTheme
+import kotlinx.coroutines.flow.MutableStateFlow
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -43,13 +52,21 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+
 }
 
 @Composable
-fun MediaPlayerScreen(modifier: Modifier = Modifier) {
-    // Тимчасовий стан для UI (потім ми підключимо це до Bound Service)
+fun MediaPlayerScreen(
+    modifier: Modifier = Modifier,
+    currentTrack: String = "Unknown",
+    progress: Float = 0f,
+    onPlayClick: () -> Unit = {},
+    onPauseClick: () -> Unit = {},
+    onNextTrack: () -> Unit = {},
+    onPreviousTrack: () -> Unit = {}
+) {
     var isPlaying by remember { mutableStateOf(false) }
-    var currentTrack by remember { mutableStateOf("Track 1 - Unknown Artist") }
 
     Column(
         modifier = modifier
@@ -64,16 +81,33 @@ fun MediaPlayerScreen(modifier: Modifier = Modifier) {
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        
+
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         Text(
             text = currentTrack,
             style = MaterialTheme.typography.headlineMedium,
             textAlign = TextAlign.Center
         )
 
-        Spacer(modifier = Modifier.height(48.dp))
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Смуга прогресу
+        LinearProgressIndicator(
+            progress = { progress },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 32.dp)
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = "${(progress * 100).toInt()}%",
+            style = MaterialTheme.typography.bodyMedium
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
 
         // Кнопки управління медіаплеєром
         Row(
@@ -82,7 +116,7 @@ fun MediaPlayerScreen(modifier: Modifier = Modifier) {
         ) {
             // Кнопка Previous
             IconButton(
-                onClick = { /* TODO: Зв'язати з сервісом */ },
+                onClick = onPreviousTrack,
                 modifier = Modifier.size(64.dp)
             ) {
                 Text(text = "Prev")
@@ -90,7 +124,14 @@ fun MediaPlayerScreen(modifier: Modifier = Modifier) {
 
             // Кнопка Play / Pause
             FilledIconButton(
-                onClick = { isPlaying = !isPlaying }, // Тимчасова логіка зміни іконки
+                onClick = {
+                    if (isPlaying) {
+                        onPauseClick()
+                    } else {
+                        onPlayClick()
+                    }
+                    isPlaying = !isPlaying
+                },
                 modifier = Modifier.size(80.dp)
             ) {
                 Text(if (isPlaying) "Pause" else "Play")
@@ -98,7 +139,7 @@ fun MediaPlayerScreen(modifier: Modifier = Modifier) {
 
             // Кнопка Next
             IconButton(
-                onClick = { /* TODO: Зв'язати з сервісом */ },
+                onClick = onNextTrack,
                 modifier = Modifier.size(64.dp)
             ) {
                 Text(text = "Next")
