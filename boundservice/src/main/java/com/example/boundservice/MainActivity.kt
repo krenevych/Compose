@@ -28,7 +28,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -37,21 +36,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import com.example.boundservice.ui.theme.ComposeTheme
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
 //    val TAG = MainActivity::class.java.simpleName
     val TAG = "XXX"
 
-//    var musicService by mutableStateOf<MusicPlayerService?>(null)
-    var musicService: MusicPlayerService? = null
-    private var progress by mutableFloatStateOf(0F)
+    var musicService by mutableStateOf<MusicPlayerService?>(null)
 
     private val connection = object : ServiceConnection {
         override fun onServiceConnected(
@@ -61,14 +54,6 @@ class MainActivity : ComponentActivity() {
             val binder = serviceBinder as MusicPlayerService.LocalBinder
             musicService = binder.getService()
             Log.d(TAG, "Службу підключено!")
-            // Щойно служба підключилася, підписуємося на її внутрішній StateFlow!
-            lifecycleScope.launch {
-                repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    musicService?.progress?.collect { p ->
-                        progress = p
-                    }
-                }
-            }
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
@@ -97,7 +82,7 @@ class MainActivity : ComponentActivity() {
 
                 var currentTrack by remember { mutableStateOf("") }
 
-//                val progress by (musicService?.progress ?: MutableStateFlow(0f)).collectAsState()
+                val progress by (musicService?.progress ?: MutableStateFlow(0f)).collectAsState()
 
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     MediaPlayerScreen(

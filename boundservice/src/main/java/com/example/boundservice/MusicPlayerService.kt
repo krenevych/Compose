@@ -67,8 +67,8 @@ class MusicPlayerService: Service() {
     private fun _start() {
         job = coroutineScope.launch {
             while (_progress.value < 1.0f){
-                _progress.value += 0.05f
                 delay(500.milliseconds)
+                _progress.value += 0.025f
                 Log.d(TAG, "_start: ${_progress.value}")
             }
         }
