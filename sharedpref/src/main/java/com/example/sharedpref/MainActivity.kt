@@ -20,9 +20,10 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -48,10 +49,13 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun SettingsScreen(modifier: Modifier = Modifier) {
-    // Стани для зберігання значень полів
-    var username by remember { mutableStateOf("") }
-    var notificationsEnabled by remember { mutableStateOf(false) }
+fun SettingsScreen(
+    modifier: Modifier = Modifier,
+    viewModel: SettingsViewModel = viewModel()
+) {
+    // Спостерігаємо за станами з ViewModel
+    val username by viewModel.username.collectAsState()
+    val notificationsEnabled by viewModel.notificationsEnabled.collectAsState()
 
     Column(
         modifier = modifier
@@ -69,7 +73,7 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
         // Поле для вводу тексту (String)
         OutlinedTextField(
             value = username,
-            onValueChange = { username = it },
+            onValueChange = { viewModel.updateUsername(it) },
             label = { Text("Ім'я користувача") },
             modifier = Modifier.fillMaxWidth()
         )
@@ -88,7 +92,7 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
             )
             Switch(
                 checked = notificationsEnabled,
-                onCheckedChange = { notificationsEnabled = it }
+                onCheckedChange = { viewModel.updateNotifications(it) }
             )
         }
 
@@ -100,7 +104,7 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             OutlinedButton(
-                onClick = { /* TODO: Зчитати дані з SharedPreferences */ },
+                onClick = { viewModel.loadSettings() },
                 modifier = Modifier.weight(1f)
             ) {
                 Text("Load")
@@ -109,7 +113,7 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.padding(8.dp))
 
             Button(
-                onClick = { /* TODO: Зберегти дані в SharedPreferences */ },
+                onClick = { viewModel.saveSettings() },
                 modifier = Modifier.weight(1f)
             ) {
                 Text("Save")
