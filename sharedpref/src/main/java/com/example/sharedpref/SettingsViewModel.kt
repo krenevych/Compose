@@ -6,6 +6,7 @@ import androidx.lifecycle.AndroidViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import androidx.core.content.edit
 
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -36,10 +37,10 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     // Зберігання даних у SharedPreferences
     fun saveSettings() {
-        sharedPreferences.edit()
-            .putString(KEY_USERNAME, _username.value)
-            .putBoolean(KEY_NOTIFICATIONS, _notificationsEnabled.value)
-            .apply()        // apply() зберігає дані асинхронно у фоновому потоці (на відміну від commit())
+        sharedPreferences.edit {
+            putString(KEY_USERNAME, _username.value)
+            putBoolean(KEY_NOTIFICATIONS, _notificationsEnabled.value)
+        }        // apply() зберігає дані асинхронно у фоновому потоці (на відміну від commit())
     }
 
     // Завантаження даних із SharedPreferences
