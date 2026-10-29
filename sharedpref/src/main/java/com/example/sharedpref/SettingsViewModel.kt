@@ -36,12 +36,10 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     // Зберігання даних у SharedPreferences
     fun saveSettings() {
-        val editor = sharedPreferences.edit()
-        editor.putString(KEY_USERNAME, _username.value)
-        editor.putBoolean(KEY_NOTIFICATIONS, _notificationsEnabled.value)
-
-        // apply() зберігає дані асинхронно у фоновому потоці (на відміну від commit())
-        editor.apply()
+        sharedPreferences.edit()
+            .putString(KEY_USERNAME, _username.value)
+            .putBoolean(KEY_NOTIFICATIONS, _notificationsEnabled.value)
+            .apply()        // apply() зберігає дані асинхронно у фоновому потоці (на відміну від commit())
     }
 
     // Завантаження даних із SharedPreferences

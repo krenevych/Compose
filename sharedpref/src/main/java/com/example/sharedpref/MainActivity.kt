@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,11 +20,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.collectAsState
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -33,6 +31,9 @@ import androidx.compose.ui.unit.sp
 import com.example.sharedpref.ui.theme.ComposeTheme
 
 class MainActivity : ComponentActivity() {
+
+    private val settingsViewModel: SettingsViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -40,6 +41,7 @@ class MainActivity : ComponentActivity() {
             ComposeTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     SettingsScreen(
+                        viewModel = settingsViewModel,
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -51,7 +53,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun SettingsScreen(
     modifier: Modifier = Modifier,
-    viewModel: SettingsViewModel = viewModel()
+    viewModel: SettingsViewModel
 ) {
     // Спостерігаємо за станами з ViewModel
     val username by viewModel.username.collectAsState()
@@ -125,7 +127,9 @@ fun SettingsScreen(
 @Preview(showBackground = true)
 @Composable
 fun SettingsScreenPreview() {
-    ComposeTheme {
-        SettingsScreen()
-    }
+//     В Preview ми не маємо справжньої ViewModel, тому це працюватиме з помилкою
+//     Для правильного Preview краще використовувати State Hoisting (передавати змінні, а не ViewModel)
+//     ComposeTheme {
+//         SettingsScreen()
+//     }
 }
