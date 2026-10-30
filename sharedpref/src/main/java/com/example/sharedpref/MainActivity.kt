@@ -1,5 +1,6 @@
 package com.example.sharedpref
 
+import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -29,29 +30,79 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.edit
 import com.example.sharedpref.ui.theme.ComposeTheme
 
 class MainActivity : ComponentActivity() {
+
+    companion object {
+        const val SHARED_PREF_FILE = "app_settings"
+
+        const val KEY_USER_NAME = "key_username"
+        const val KEY_NOTIFICATION_ENABLED = "key_notifications"
+    }
+
+    // Отримуємо доступ до файлу app_settings.xml
+    lateinit var sharedPref: SharedPreferences
+
+    // Стани для зберігання значень полів
+    var username by mutableStateOf("")
+    var notificationsEnabled by mutableStateOf(false)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        sharedPref = getSharedPreferences(SHARED_PREF_FILE, MODE_PRIVATE)
+
         setContent {
             ComposeTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     SettingsScreen(
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = Modifier.padding(innerPadding),
+                        username = username,
+                        onNameChanged = { username = it },
+                        notificationsEnabled = notificationsEnabled,
+                        onNotificationChanged = {notificationsEnabled = it},
+                        onSavePressed = {
+                            sharedPref.edit {
+                                putString(KEY_USER_NAME, username)
+                                putBoolean(KEY_NOTIFICATION_ENABLED, notificationsEnabled)
+                            }
+                        },
+                        onLoadPressed = { loadData() }
                     )
                 }
             }
         }
     }
+
+    override fun onStart() {
+        super.onStart()
+
+        loadData()
+    }
+
+
+
+    private fun loadData() {
+        username = sharedPref.getString(KEY_USER_NAME, "Unknown") ?: ""
+        notificationsEnabled = sharedPref.getBoolean(KEY_NOTIFICATION_ENABLED, false)
+    }
+
 }
 
 @Composable
-fun SettingsScreen(modifier: Modifier = Modifier) {
-    // Стани для зберігання значень полів
-    var username by remember { mutableStateOf("") }
-    var notificationsEnabled by remember { mutableStateOf(false) }
+fun SettingsScreen(
+    modifier: Modifier = Modifier,
+    username: String = "",
+    onNameChanged: (String) -> Unit = {},
+    notificationsEnabled: Boolean = false,
+    onNotificationChanged: (Boolean) -> Unit = {},
+    onSavePressed: () -> Unit = {},
+    onLoadPressed: () -> Unit = {},
+) {
+
 
     Column(
         modifier = modifier
@@ -69,8 +120,8 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
         // Поле для вводу тексту (String)
         OutlinedTextField(
             value = username,
-            onValueChange = { username = it },
-            label = { Text("Ім'я користувача") },
+            onValueChange = onNameChanged,
+            label = { Text("Ім'я користувача") },// { username = it }
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -88,7 +139,7 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
             )
             Switch(
                 checked = notificationsEnabled,
-                onCheckedChange = { notificationsEnabled = it }
+                onCheckedChange = onNotificationChanged, //{ notificationsEnabled = it }
             )
         }
 
@@ -100,7 +151,7 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             OutlinedButton(
-                onClick = { /* TODO: Зчитати дані з SharedPreferences */ },
+                onClick = onLoadPressed,//{ /* TODO: Зчитати дані з SharedPreferences */ },
                 modifier = Modifier.weight(1f)
             ) {
                 Text("Load")
@@ -109,7 +160,7 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.padding(8.dp))
 
             Button(
-                onClick = { /* TODO: Зберегти дані в SharedPreferences */ },
+                onClick = onSavePressed,  //{ /* TODO: Зберегти дані в SharedPreferences */ },
                 modifier = Modifier.weight(1f)
             ) {
                 Text("Save")
