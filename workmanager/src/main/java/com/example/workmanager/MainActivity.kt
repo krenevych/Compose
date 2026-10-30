@@ -1,5 +1,6 @@
 package com.example.workmanager
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -27,7 +28,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.work.Constraints
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.example.workmanager.ui.theme.ComposeTheme
 
 class MainActivity : ComponentActivity() {
@@ -38,6 +44,7 @@ class MainActivity : ComponentActivity() {
             ComposeTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     DataSyncScreen(
+                        context = this,
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -46,8 +53,34 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+fun sync(
+    context: Context,
+    requiresWiFi: Boolean = false,
+    requiresCharging: Boolean = false
+) {
+    val constraintsBuilder = Constraints.Builder().apply {
+        if (requiresWiFi)
+            setRequiredNetworkType(NetworkType.UNMETERED) // Тільки на Wi-Fi (безлімітний трафік)
+
+        if (requiresCharging){
+            setRequiresCharging(true)
+        }
+    }
+    val constraints = constraintsBuilder.build()
+
+    val syncRequest = OneTimeWorkRequestBuilder<SyncWorker>()
+        .setConstraints(constraints) // Додаємо умови
+        .build()
+
+    // 3. Ставимо задачу у системну чергу WorkManager
+    WorkManager.getInstance(context).enqueue(syncRequest)
+}
+
 @Composable
-fun DataSyncScreen(modifier: Modifier = Modifier) {
+fun DataSyncScreen(
+    context: Context,
+    modifier: Modifier = Modifier,
+) {
     // Стан для Constraints (Умов виконання)
     var requiresWiFi by remember { mutableStateOf(false) }
     var requiresCharging by remember { mutableStateOf(false) }
@@ -135,7 +168,9 @@ fun DataSyncScreen(modifier: Modifier = Modifier) {
         
         // Кнопка для запуску
         Button(
-            onClick = { /* TODO: Запустити OneTimeWorkRequest із вибраними Constraints */ },
+            onClick = {
+                sync(context, requiresWiFi, requiresCharging)
+            },
             modifier = Modifier.fillMaxWidth().height(56.dp)
         ) {
             Text("Почати бекап")
@@ -157,6 +192,6 @@ fun DataSyncScreen(modifier: Modifier = Modifier) {
 @Composable
 fun DataSyncScreenPreview() {
     ComposeTheme {
-        DataSyncScreen()
+        DataSyncScreen(context = LocalContext.current)
     }
 }
