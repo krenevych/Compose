@@ -115,6 +115,10 @@ fun DataSyncScreen(
         null -> "Очікує запуску..."
     }
 
+    // Отримуємо прогрес з WorkInfo
+    val progressInt = currentWorkInfo?.progress?.getInt("synchronized", 0) ?: 0
+    val progressFloat = progressInt / 100f
+
     // Чи працює або очікує задача
     val isRunningOrEnqueued = currentWorkInfo?.state == WorkInfo.State.RUNNING || 
                               currentWorkInfo?.state == WorkInfo.State.ENQUEUED
@@ -191,9 +195,16 @@ fun DataSyncScreen(
         Spacer(modifier = Modifier.height(16.dp))
         
         // Симуляція прогресу (буде відображатися, коли статус "RUNNING")
-        LinearProgressIndicator(
-            modifier = Modifier.fillMaxWidth()
-        )
+        if (currentWorkInfo?.state == WorkInfo.State.RUNNING) {
+            LinearProgressIndicator(
+                progress = { progressFloat },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = "$progressInt%")
+        } else {
+            Spacer(modifier = Modifier.height(16.dp)) // Заглушка, щоб висота не стрибала
+        }
         
         Spacer(modifier = Modifier.height(32.dp))
         

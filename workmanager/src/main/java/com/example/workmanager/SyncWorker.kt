@@ -32,7 +32,7 @@ class SyncWorker(
             val outputDataBuilder = Data.Builder()
             outputDataBuilder.putInt("synchronized", i)
             val outputData = outputDataBuilder.build()
-            Result.success(outputData)
+            setProgress(outputData)
 
         }
 
