@@ -31,9 +31,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.work.Constraints
+import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkInfo
 import androidx.work.WorkManager
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.work.Data
 import com.example.workmanager.ui.theme.ComposeTheme
 
 class MainActivity : ComponentActivity() {
@@ -68,12 +72,23 @@ fun sync(
     }
     val constraints = constraintsBuilder.build()
 
+    val inputData = Data.Builder()
+        .putString("server_url", "https://api.example.com/sync")
+        .putBoolean("something", true)
+        .build()
+
     val syncRequest = OneTimeWorkRequestBuilder<SyncWorker>()
         .setConstraints(constraints) // Додаємо умови
+        .setInputData(inputData)
         .build()
 
     // 3. Ставимо задачу у системну чергу WorkManager
-    WorkManager.getInstance(context).enqueue(syncRequest)
+    // Використовуємо enqueueUniqueWork, щоб не створити кілька однакових задач
+    WorkManager.getInstance(context).enqueueUniqueWork(
+        "SyncWork",
+        ExistingWorkPolicy.REPLACE,
+        syncRequest
+    )
 }
 
 @Composable
@@ -81,12 +96,28 @@ fun DataSyncScreen(
     context: Context,
     modifier: Modifier = Modifier,
 ) {
+    val workManager = remember { WorkManager.getInstance(context) }
+    val workInfos by workManager.getWorkInfosForUniqueWorkLiveData("SyncWork").observeAsState(initial = emptyList())
+    val currentWorkInfo = workInfos.firstOrNull()
+
     // Стан для Constraints (Умов виконання)
     var requiresWiFi by remember { mutableStateOf(false) }
     var requiresCharging by remember { mutableStateOf(false) }
     
-    // Стан статусу роботи
-    val syncStatus by remember { mutableStateOf("Очікує запуску...") }
+    // Динамічний статус замість статичного
+    val syncStatus = when (currentWorkInfo?.state) {
+        WorkInfo.State.ENQUEUED -> "Очікує виконання..."
+        WorkInfo.State.RUNNING -> "Виконується"
+        WorkInfo.State.SUCCEEDED -> "Готово!"
+        WorkInfo.State.FAILED -> "Помилка синхронізації"
+        WorkInfo.State.BLOCKED -> "Заблоковано іншою роботою"
+        WorkInfo.State.CANCELLED -> "Синхронізацію скасовано"
+        null -> "Очікує запуску..."
+    }
+
+    // Чи працює або очікує задача
+    val isRunningOrEnqueued = currentWorkInfo?.state == WorkInfo.State.RUNNING || 
+                              currentWorkInfo?.state == WorkInfo.State.ENQUEUED
 
     Column(
         modifier = modifier
@@ -171,16 +202,20 @@ fun DataSyncScreen(
             onClick = {
                 sync(context, requiresWiFi, requiresCharging)
             },
+            enabled = !isRunningOrEnqueued,
             modifier = Modifier.fillMaxWidth().height(56.dp)
         ) {
-            Text("Почати бекап")
+            Text(if (isRunningOrEnqueued) "Працює..." else "Почати бекап")
         }
         
         Spacer(modifier = Modifier.height(16.dp))
 
         // Кнопка для скасування
         Button(
-            onClick = { /* TODO: Скасувати роботу за тегом або ID */ },
+            onClick = { 
+                workManager.cancelUniqueWork("SyncWork")
+            },
+            enabled = isRunningOrEnqueued,
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Скасувати")
