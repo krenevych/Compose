@@ -12,14 +12,14 @@ class SyncWorker(
     workerParams: WorkerParameters
 ): CoroutineWorker(context, workerParams) {
 
-    private val TAG = "WorkManager"
+    private val TAG = "XXXXX"
 
     override suspend fun doWork(): Result {
         Log.d(TAG, "Починаємо синхронізацію...")
 
         delay(5_000.milliseconds)
 
-        Log.d("WorkManager", "Синхронізація успішна!")
+        Log.d(TAG, "Синхронізація успішна!")
 
         return Result.success()
     }
