@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,7 +22,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,29 +29,66 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.sharedpref.ui.theme.ComposeTheme
 
 class MainActivity : ComponentActivity() {
+
+    // Стани для зберігання значень полів
+
+    val viewModel by viewModels<SettingsViewModel>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         setContent {
             ComposeTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     SettingsScreen(
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = Modifier.padding(innerPadding),
+                        viewModel = viewModel,
+//                        username = username,
+//                        onNameChanged = { username = it },
+//                        notificationsEnabled = notificationsEnabled,
+//                        onNotificationChanged = {notificationsEnabled = it},
+//                        onSavePressed = {
+//
+//                        },
+//                        onLoadPressed = { loadData() }
                     )
                 }
             }
         }
     }
+
+    override fun onStart() {
+        super.onStart()
+
+        loadData()
+    }
+
+
+
+    private fun loadData() {
+
+    }
+
 }
 
 @Composable
-fun SettingsScreen(modifier: Modifier = Modifier) {
-    // Стани для зберігання значень полів
-    var username by remember { mutableStateOf("") }
-    var notificationsEnabled by remember { mutableStateOf(false) }
+fun SettingsScreen(
+    modifier: Modifier = Modifier,
+    viewModel: SettingsViewModel,
+//    username: String = "",
+//    onNameChanged: (String) -> Unit = {},
+//    notificationsEnabled: Boolean = false,
+//    onNotificationChanged: (Boolean) -> Unit = {},
+//    onSavePressed: () -> Unit = {},
+//    onLoadPressed: () -> Unit = {},
+) {
+    val username by viewModel.userName.collectAsStateWithLifecycle()
+    val notificationsEnabled by viewModel.hasNotification.collectAsStateWithLifecycle()
 
     Column(
         modifier = modifier
@@ -69,8 +106,8 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
         // Поле для вводу тексту (String)
         OutlinedTextField(
             value = username,
-            onValueChange = { username = it },
-            label = { Text("Ім'я користувача") },
+            onValueChange = { },
+            label = { Text("Ім'я користувача") },// { username = it }
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -88,7 +125,7 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
             )
             Switch(
                 checked = notificationsEnabled,
-                onCheckedChange = { notificationsEnabled = it }
+                onCheckedChange = {}, //{ notificationsEnabled = it }
             )
         }
 
@@ -100,7 +137,9 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             OutlinedButton(
-                onClick = { /* TODO: Зчитати дані з SharedPreferences */ },
+                onClick = {
+//                    viewModel.userName
+                },//{ /* TODO: Зчитати дані з SharedPreferences */ },
                 modifier = Modifier.weight(1f)
             ) {
                 Text("Load")
@@ -109,7 +148,10 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.padding(8.dp))
 
             Button(
-                onClick = { /* TODO: Зберегти дані в SharedPreferences */ },
+                onClick = {
+                    viewModel.updateName(username)
+                    viewModel.updateNotification( notificationsEnabled )
+                },  //{ /* TODO: Зберегти дані в SharedPreferences */ },
                 modifier = Modifier.weight(1f)
             ) {
                 Text("Save")
@@ -118,10 +160,10 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun SettingsScreenPreview() {
-    ComposeTheme {
-        SettingsScreen()
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun SettingsScreenPreview() {
+//    ComposeTheme {
+//        SettingsScreen()
+//    }
+//}
