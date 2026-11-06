@@ -44,14 +44,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             ComposeTheme {
 
-                val rateInfo by viewModel.uiState.collectAsStateWithLifecycle()
-                val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
-//                var isLoading by remember {  mutableStateOf(false) }
+                val uiState: ExchangeRatesUiState by viewModel.uiState.collectAsStateWithLifecycle()
 
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     CurrencyRatesScreen(
-                        rates = rateInfo,
-                        isLoading = isLoading,
+                        uiState = uiState,
                         onLoadRates = {
                             viewModel.getCurrencyExchange()
                         },
@@ -69,8 +66,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun CurrencyRatesScreen(
     modifier: Modifier = Modifier,
-    rates: String,
-    isLoading: Boolean = false,
+    uiState: ExchangeRatesUiState = ExchangeRatesUiState.Loading,
     onLoadRates: () -> Unit
 ) {
     Column(
@@ -79,6 +75,19 @@ fun CurrencyRatesScreen(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        var rates = "";
+        var isLoading = false;
+        when (uiState) {
+            ExchangeRatesUiState.Loading -> {
+                isLoading = true;
+            }
+            is ExchangeRatesUiState.Success -> {
+                rates = uiState.rates.toString();
+            }
+
+            ExchangeRatesUiState.Error -> rates = "Loading error!"
+        }
+
         OutlinedTextField(
             value = rates,
             onValueChange = {},
@@ -105,7 +114,6 @@ fun CurrencyRatesPreview() {
     ComposeTheme {
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
             CurrencyRatesScreen(
-                rates = "",
                 onLoadRates = {},
                 modifier = Modifier.padding(innerPadding)
             )

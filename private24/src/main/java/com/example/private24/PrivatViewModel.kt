@@ -15,22 +15,28 @@ class PrivatViewModel : ViewModel() {
 
     private val networkModule = PrivatBankNetworkModule()
 
-    private val _uiState = MutableStateFlow("")
-    private val _isLoading = MutableStateFlow(false)
-    val uiState: StateFlow<String> = _uiState.asStateFlow()
-    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+    private val _uiState = MutableStateFlow<ExchangeRatesUiState>(ExchangeRatesUiState.Loading)
+    val uiState: StateFlow<ExchangeRatesUiState> = _uiState.asStateFlow()
 
+    init {
+        getCurrencyExchange()
+    }
 
     fun getCurrencyExchange(
         courseId: Int = 5,
     ) {
         viewModelScope.launch {
-            _isLoading.value = true
-            delay(5000.milliseconds)
+            _uiState.value = ExchangeRatesUiState.Loading
+            delay(5000.milliseconds) // For debug
 
-            _uiState.value =
-                networkModule.service.getCurrencyExchange(courseId = courseId).toString()
-            _isLoading.value = false
+
+            val result: List<CurrencyItem>? = networkModule.service.getCurrencyExchange(courseId = courseId)
+
+            result?.let {result ->
+                _uiState.value = ExchangeRatesUiState.Success(result)
+            } ?: run {
+                _uiState.value = ExchangeRatesUiState.Error
+            }
         }
     }
 }
