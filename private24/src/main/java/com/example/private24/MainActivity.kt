@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.example.private24.ui.theme.ComposeTheme
 import kotlinx.coroutines.Dispatchers
@@ -34,24 +35,21 @@ class MainActivity : ComponentActivity() {
 
     private val viewModel: PrivatViewModel by viewModels()
 
-    var rateInfo by mutableStateOf("")
+//    var rateInfo by mutableStateOf("")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             ComposeTheme {
+
+                val rateInfo by viewModel.uiState.collectAsStateWithLifecycle()
+
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     CurrencyRatesScreen(
                         rates = rateInfo,
                         onLoadRates = {
-                            viewModel.getCurrencyExchange { currencyList: List<CurrencyItem>? ->
-                                currencyList?.let {
-                                    rateInfo = it.toString()
-                                } ?: run {
-                                    rateInfo = "Error loading data"
-                                }
-                            }
+                            viewModel.getCurrencyExchange()
                         },
                         modifier = Modifier.padding(innerPadding)
                     )

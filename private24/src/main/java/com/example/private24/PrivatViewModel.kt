@@ -1,55 +1,28 @@
 package com.example.private24
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.http.Query
 
-class PrivatViewModel: ViewModel() {
+class PrivatViewModel : ViewModel() {
 
-//    private val TAG = PrivatViewModel::class.java.simpleName
     private val TAG = "XXXX"
 
     private val networkModule = PrivatBankNetworkModule()
 
+    private val _uiState = MutableStateFlow("")
+    val uiState: StateFlow<String> = _uiState.asStateFlow()
 
-    fun fetchRates() {
-
-    }
 
     fun getCurrencyExchange(
         courseId: Int = 5,
-        callback: (List<CurrencyItem>?) -> Unit
     ) {
         viewModelScope.launch {
-            val response: List<CurrencyItem>? = networkModule.service.getCurrencyExchange(courseId = courseId)
-            callback(response)
+            _uiState.value =
+                networkModule.service.getCurrencyExchange(courseId = courseId).toString()
         }
-
-
-//        val call: Call<List<CurrencyItem>> = networkModule.service.getCurrencyExchange(courseId = courseId)
-//        call.enqueue(object : Callback<List<CurrencyItem>> {
-//            override fun onResponse(
-//                call: Call<List<CurrencyItem>?>,
-//                response: Response<List<CurrencyItem>?>
-//            ) {
-//                callback(response.body())
-//                Log.d(TAG, "onResponse: ${response.body()}")
-//            }
-//
-//            override fun onFailure(
-//                call: Call<List<CurrencyItem>?>,
-//                t: Throwable
-//            ) {
-//                Log.e(TAG, "onFailure: $t", )
-//                callback(null)
-//            }
-//
-//        }
-//        )
     }
 }
