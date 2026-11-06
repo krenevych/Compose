@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -44,10 +45,13 @@ class MainActivity : ComponentActivity() {
             ComposeTheme {
 
                 val rateInfo by viewModel.uiState.collectAsStateWithLifecycle()
+                val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
+//                var isLoading by remember {  mutableStateOf(false) }
 
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     CurrencyRatesScreen(
                         rates = rateInfo,
+                        isLoading = isLoading,
                         onLoadRates = {
                             viewModel.getCurrencyExchange()
                         },
@@ -64,9 +68,10 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun CurrencyRatesScreen(
+    modifier: Modifier = Modifier,
     rates: String,
-    onLoadRates: () -> Unit,
-    modifier: Modifier = Modifier
+    isLoading: Boolean = false,
+    onLoadRates: () -> Unit
 ) {
     Column(
         modifier = modifier
@@ -86,7 +91,8 @@ fun CurrencyRatesScreen(
         )
         Button(
             onClick = onLoadRates,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            enabled = !isLoading
         ) {
             Text(stringResource(R.string.load_currency_rates))
         }
