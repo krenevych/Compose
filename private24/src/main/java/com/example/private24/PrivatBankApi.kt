@@ -6,7 +6,7 @@ import retrofit2.http.Query
 
 interface PrivatBankApi {
 
-    // GET https://api.privatbank.ua/p24api/pubinfo?exchange&coursid=5
+    // GET https://api.privatbank.ua/p24api/pubinfo?exchange&coursid=11
 
     @GET("p24api/pubinfo?exchange")
     fun getCurrencyExchange(

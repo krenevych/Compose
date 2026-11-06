@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,6 +32,8 @@ import java.net.URL
 
 class MainActivity : ComponentActivity() {
 
+    private val viewModel: PrivatViewModel by viewModels()
+
     var rateInfo by mutableStateOf("")
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,10 +45,12 @@ class MainActivity : ComponentActivity() {
                     CurrencyRatesScreen(
                         rates = rateInfo,
                         onLoadRates = {
-                            lifecycleScope.launch {
-                                rateInfo =
-                                    loadData("https://itc.ua/soft-ru/v-tv-prylozhenyy-netflix-poyavylsya-novyj-ynstrument-dlya-chego-on-nuzhen/")
-                                Log.d("XXXX", rateInfo)
+                            viewModel.getCurrencyExchange { currencyList: List<CurrencyItem>? ->
+                                currencyList?.let {
+                                    rateInfo = it.toString()
+                                } ?: run {
+                                    rateInfo = "Error loading data"
+                                }
                             }
                         },
                         modifier = Modifier.padding(innerPadding)
@@ -55,10 +60,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    suspend fun loadData(address: String) = withContext(Dispatchers.IO) {
-        val url = URL(address)
-        url.readText(charset = Charsets.UTF_8)
-    }
+
 
 }
 
