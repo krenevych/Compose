@@ -9,9 +9,9 @@ interface PrivatBankApi {
     // GET https://api.privatbank.ua/p24api/pubinfo?exchange&coursid=11
 
     @GET("p24api/pubinfo?exchange")
-    fun getCurrencyExchange(
+    suspend fun getCurrencyExchange(
         @Query("coursid")
         courseId: Int = 5
-    ): Call<List<CurrencyItem>>
+    ): List<CurrencyItem>?
 
 }
