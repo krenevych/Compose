@@ -1,10 +1,12 @@
 package com.example.roomdb
 
+import androidx.room3.Dao
 import androidx.room3.Insert
 import androidx.room3.OnConflictStrategy
 import androidx.room3.Query
 import kotlinx.coroutines.flow.Flow
 
+@Dao
 interface CardDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
