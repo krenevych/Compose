@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.devtools.ksp") // Підключаємо плагін KSP
 }
 
 android {
@@ -46,6 +47,13 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.compose.material.icons)
+    val room_version = "3.0.3"
+
+    // Основна бібліотека Room
+    implementation(libs.androidx.room3.runtime)
+
+    // Компілятор Room (обробник анотацій через KSP)
+    ksp(libs.androidx.room3.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
