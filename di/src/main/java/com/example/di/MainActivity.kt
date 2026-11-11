@@ -13,6 +13,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.example.di.computer.Computer
+import com.example.di.computer.Memory
+import com.example.di.computer.Processor
+import com.example.di.computer.Ssd
 import com.example.di.ui.theme.ComposeTheme
 
 class MainActivity : ComponentActivity() {
@@ -22,13 +25,18 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        val processor = Processor()
+        val memory = Memory()
+        val storage = Ssd()
 
-       val computer = Computer()
+       val computer = Computer(processor, memory, storage)
 
         setContent {
             ComposeTheme {
                 Box(
-                    modifier = Modifier.fillMaxSize().safeDrawingPadding(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .safeDrawingPadding(),
                     contentAlignment = Alignment.Center
                 ) {
                     Button(onClick = {

@@ -1,9 +1,11 @@
 package com.example.di.computer
 
-class Computer {
-    private val processor = Processor()
-    private val memory = Memory()
-    private val storage = Ssd()
+// Інʼєкція в конструктор
+class Computer(
+    val processor: Processor,
+    val memory: Memory,
+    val storage: Ssd,
+) {
 
     fun boot() {
         processor.start()
