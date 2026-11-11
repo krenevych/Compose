@@ -6,7 +6,7 @@ import javax.inject.Inject
 class Computer @Inject constructor(
     val processor: Processor,
     val memory: Memory,
-    val storage: Ssd,
+    val storage: Storage,
 ) {
 
     @Inject
