@@ -1,8 +1,9 @@
 package com.example.di.computer
 
 import android.util.Log
+import javax.inject.Inject
 
-class Memory {
+class Memory @Inject constructor(){
 
     val TAG = "Memory"
     fun initialize() {

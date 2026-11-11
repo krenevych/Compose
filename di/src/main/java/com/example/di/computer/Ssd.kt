@@ -1,8 +1,9 @@
 package com.example.di.computer
 
 import android.util.Log
+import javax.inject.Inject
 
-class Ssd {
+class Ssd @Inject constructor(){
 
     val TAG = "Ssd"
 

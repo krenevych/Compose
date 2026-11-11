@@ -17,18 +17,20 @@ import com.example.di.computer.Memory
 import com.example.di.computer.Processor
 import com.example.di.computer.Ssd
 import com.example.di.ui.theme.ComposeTheme
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
-// інʼєкція в конструктор
+
+@AndroidEntryPoint
 class MainActivity() : ComponentActivity() {
 
     // Iнʼєкція залежностей в поле
+    @Inject
     lateinit var computer: Computer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
-        Component().inject(this)
 
         setContent {
             ComposeTheme {
