@@ -18,18 +18,17 @@ import com.example.di.computer.Processor
 import com.example.di.computer.Ssd
 import com.example.di.ui.theme.ComposeTheme
 
-class MainActivity : ComponentActivity() {
+// інʼєкція в конструктор
+class MainActivity() : ComponentActivity() {
 
+    // Iнʼєкція залежностей в поле
+    lateinit var computer: Computer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        val processor = Processor()
-        val memory = Memory()
-        val storage = Ssd()
-
-       val computer = Computer(processor, memory, storage)
+        Component().inject(this)
 
         setContent {
             ComposeTheme {
