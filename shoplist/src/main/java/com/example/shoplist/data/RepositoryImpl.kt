@@ -12,7 +12,7 @@ class RepositoryImpl : Repository {
     private val items = mutableListOf<ShopItem>()
 
     private val _shopListFlow = MutableStateFlow(items.toList())
-    val shopList: StateFlow<List<ShopItem>> = _shopListFlow.asStateFlow()
+    override val shopList: StateFlow<List<ShopItem>> = _shopListFlow.asStateFlow()
 
     private var nextId = 0
 
@@ -23,8 +23,6 @@ class RepositoryImpl : Repository {
         addItem(ShopItem(name = "Яйця", count = 10, enabled = true))
         addItem(ShopItem(name = "Кава", count = 1, enabled = false))
     }
-
-    override fun getShopList(): Flow<List<ShopItem>> = shopList
 
     override suspend fun add(item: ShopItem) {
         addItem(item)
