@@ -9,4 +9,5 @@
 
 SOLID - принципи архітектури
 
-S - Single Responsibility Principle, принцип єдиного обвʼязку
+S - Single Responsibility Principle, принцип єдиного обвʼязку - Для Use Cases
+D - Dependency Inversion Principle - Для Repositories

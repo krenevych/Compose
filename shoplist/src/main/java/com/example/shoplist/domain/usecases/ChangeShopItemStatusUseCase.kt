@@ -1,9 +1,11 @@
 package com.example.shoplist.domain.usecases
 
+import com.example.shoplist.domain.Repository
 import com.example.shoplist.domain.ShopItem
 
-class ChangeShopItemStatusUseCase {
+class ChangeShopItemStatusUseCase(private val repository: Repository) {
     fun changeStatus(item: ShopItem) {
-        TODO()
+        val newItem = item.copy(enabled = !item.enabled)
+        repository.edit(newItem)
     }
 }
