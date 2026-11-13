@@ -3,10 +3,32 @@ package com.example.shoplist.data
 import com.example.shoplist.domain.ShopItem
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 
 class RepositoryImplTest {
     private val repository = RepositoryImpl()
+
+    @Before
+    fun clearFakeItems() {
+        repository.getShopList().forEach(repository::delete)
+    }
+
+    @Test
+    fun repositoryStartsWithFakeItemsAndAssignsANewIdOnAdd() {
+        val populatedRepository = RepositoryImpl()
+        val items = populatedRepository.getShopList()
+
+        assertTrue(items.isNotEmpty())
+        assertTrue(items.any { it.enabled })
+        assertTrue(items.any { !it.enabled })
+        assertEquals(items.size, items.map { it.id }.toSet().size)
+
+        populatedRepository.add(ShopItem(name = "Tea"))
+
+        val newItem = populatedRepository.getShopList().last()
+        assertTrue(items.none { it.id == newItem.id })
+    }
 
     @Test
     fun addedItemsHaveUniqueIdsThatAreNotReusedAfterDeletion() {

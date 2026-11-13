@@ -8,6 +8,14 @@ class RepositoryImpl : Repository {
     private val shopList = mutableListOf<ShopItem>()
     private var nextId = 0
 
+    init {
+        add(ShopItem(name = "Молоко", count = 2, enabled = true))
+        add(ShopItem(name = "Хліб", count = 1, enabled = true))
+        add(ShopItem(name = "Яблука", count = 5, enabled = false))
+        add(ShopItem(name = "Яйця", count = 10, enabled = true))
+        add(ShopItem(name = "Кава", count = 1, enabled = false))
+    }
+
     override fun getShopList(): List<ShopItem> {
         return shopList.toList()
     }

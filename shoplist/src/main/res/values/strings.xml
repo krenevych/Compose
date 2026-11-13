@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">shoplist</string>
+    <string name="shop_list_title">Список покупок</string>
+    <string name="shop_item_count">Кількість: %1$d</string>
+    <string name="shop_item_active">Активна</string>
+    <string name="shop_item_inactive">Неактивна</string>
 </resources>
