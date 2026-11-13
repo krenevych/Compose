@@ -2,42 +2,55 @@ package com.example.shoplist.data
 
 import com.example.shoplist.domain.Repository
 import com.example.shoplist.domain.ShopItem
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class RepositoryImpl : Repository {
 
-    private val shopList = mutableListOf<ShopItem>()
+    private val items = mutableListOf<ShopItem>()
+
+    private val _shopListFlow = MutableStateFlow(items.toList())
+    val shopList: StateFlow<List<ShopItem>> = _shopListFlow.asStateFlow()
+
     private var nextId = 0
 
     init {
-        add(ShopItem(name = "Молоко", count = 2, enabled = true))
-        add(ShopItem(name = "Хліб", count = 1, enabled = true))
-        add(ShopItem(name = "Яблука", count = 5, enabled = false))
-        add(ShopItem(name = "Яйця", count = 10, enabled = true))
-        add(ShopItem(name = "Кава", count = 1, enabled = false))
+        addItem(ShopItem(name = "Молоко", count = 2, enabled = true))
+        addItem(ShopItem(name = "Хліб", count = 1, enabled = true))
+        addItem(ShopItem(name = "Яблука", count = 5, enabled = false))
+        addItem(ShopItem(name = "Яйця", count = 10, enabled = true))
+        addItem(ShopItem(name = "Кава", count = 1, enabled = false))
     }
 
-    override fun getShopList(): List<ShopItem> {
-        return shopList.toList()
+    override fun getShopList(): Flow<List<ShopItem>> = shopList
+
+    override suspend fun add(item: ShopItem) {
+        addItem(item)
     }
 
-    override fun add(item: ShopItem) {
-        shopList.add(item.copy(id = nextId++))
+    private fun addItem(item: ShopItem) {
+        items.add(item.copy(id = nextId++))
+        _shopListFlow.value = items.toList()
     }
 
-    override fun edit(item: ShopItem) {
-        val index = shopList.indexOfFirst { it.id == item.id }
+    override suspend fun edit(item: ShopItem) {
+        val index = items.indexOfFirst { it.id == item.id }
         if (index == -1) {
             throw NoSuchElementException("Shop item with id ${item.id} not found")
         }
-        shopList[index] = item
+        items[index] = item
+        _shopListFlow.value = items.toList()
     }
 
-    override fun delete(item: ShopItem) {
-        shopList.removeAll { it.id == item.id }
+    override suspend fun delete(item: ShopItem) {
+        items.removeAll { it.id == item.id }
+        _shopListFlow.value = items.toList()
     }
 
-    override fun getShopItemById(id: Int): ShopItem {
-        return shopList.find { it.id == id }
+    override suspend fun getShopItemById(id: Int): ShopItem {
+        return items.find { it.id == id }
             ?: throw NoSuchElementException("Shop item with id $id not found")
     }
 }
