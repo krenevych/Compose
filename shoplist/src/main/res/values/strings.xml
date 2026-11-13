@@ -4,4 +4,15 @@
     <string name="shop_item_count">Кількість: %1$d</string>
     <string name="shop_item_active">Активна</string>
     <string name="shop_item_inactive">Неактивна</string>
+    <string name="shop_item_add">Додати покупку</string>
+    <string name="shop_item_edit">Редагувати покупку</string>
+    <string name="shop_item_delete">Видалити</string>
+    <string name="shop_item_toggle">Змінити активність</string>
+    <string name="shop_item_name">Назва</string>
+    <string name="shop_item_quantity">Кількість</string>
+    <string name="shop_item_name_error">Введіть назву покупки</string>
+    <string name="shop_item_count_error">Введіть ціле число більше нуля</string>
+    <string name="shop_item_save">Зберегти</string>
+    <string name="shop_item_cancel">Скасувати</string>
+    <string name="shop_list_empty">Список порожній. Додайте першу покупку.</string>
 </resources>

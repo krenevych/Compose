@@ -1,6 +1,9 @@
 package com.example.shoplist.presentation
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -13,8 +16,12 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
@@ -24,29 +31,74 @@ import com.example.shoplist.domain.ShopItem
 import com.example.shoplist.presentation.theme.ComposeTheme
 
 @Composable
-fun ShopListScreen(items: List<ShopItem>, modifier: Modifier = Modifier) {
+fun ShopListScreen(
+    items: List<ShopItem>,
+    modifier: Modifier = Modifier,
+    onItemClick: (ShopItem) -> Unit = {},
+    onItemLongClick: (ShopItem) -> Unit = {},
+    onItemDelete: (ShopItem) -> Unit = {}
+) {
     Column(modifier = modifier.fillMaxSize()) {
         Text(
             text = stringResource(R.string.shop_list_title),
             style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.padding(16.dp)
         )
+        if (items.isEmpty()) {
+            Text(
+                text = stringResource(R.string.shop_list_empty),
+                modifier = Modifier.padding(16.dp)
+            )
+        }
         LazyColumn(
             modifier = Modifier.weight(1f),
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 16.dp),
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 96.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(items = items, key = { it.id }) { item ->
-                ShopItemCard(item)
+                val dismissState = rememberSwipeToDismissBoxState()
+                SwipeToDismissBox(
+                    state = dismissState,
+                    modifier = Modifier.animateItem(),
+                    onDismiss = { onItemDelete(item) },
+                    backgroundContent = {
+                        Box(
+                            modifier = Modifier.fillMaxSize()
+                                .background(MaterialTheme.colorScheme.errorContainer, MaterialTheme.shapes.medium)
+                                .padding(16.dp),
+                            contentAlignment = if (dismissState.dismissDirection == SwipeToDismissBoxValue.StartToEnd) {
+                                Alignment.CenterStart
+                            } else {
+                                Alignment.CenterEnd
+                            }
+                        ) {
+                            Text(
+                                stringResource(R.string.shop_item_delete),
+                                color = MaterialTheme.colorScheme.onErrorContainer
+                            )
+                        }
+                    }
+                ) {
+                    ShopItemCard(
+                        item = item,
+                        onClick = { onItemClick(item) },
+                        onLongClick = { onItemLongClick(item) }
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-private fun ShopItemCard(item: ShopItem) {
+private fun ShopItemCard(item: ShopItem, onClick: () -> Unit, onLongClick: () -> Unit) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().combinedClickable(
+            onClick = onClick,
+            onClickLabel = stringResource(R.string.shop_item_edit),
+            onLongClick = onLongClick,
+            onLongClickLabel = stringResource(R.string.shop_item_toggle)
+        ),
         colors = CardDefaults.cardColors(
             containerColor = if (item.enabled) {
                 MaterialTheme.colorScheme.primaryContainer
