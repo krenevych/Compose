@@ -13,13 +13,13 @@ class RepositoryImplTest {
 
     @Before
     fun clearFakeItems() = runBlocking<Unit> {
-        repository.getShopList().first().forEach { repository.delete(it) }
+        repository.shopList.first().forEach { repository.delete(it) }
     }
 
     @Test
     fun repositoryStartsWithFakeItemsAndAssignsANewIdOnAdd() = runBlocking<Unit> {
         val populatedRepository = RepositoryImpl()
-        val items = populatedRepository.getShopList().first()
+        val items = populatedRepository.shopList.first()
 
         assertTrue(items.isNotEmpty())
         assertTrue(items.any { it.enabled })
@@ -28,7 +28,7 @@ class RepositoryImplTest {
 
         populatedRepository.add(ShopItem(name = "Tea"))
 
-        val newItem = populatedRepository.getShopList().first().last()
+        val newItem = populatedRepository.shopList.first().last()
         assertTrue(items.none { it.id == newItem.id })
     }
 
@@ -36,11 +36,11 @@ class RepositoryImplTest {
     fun addedItemsHaveUniqueIdsThatAreNotReusedAfterDeletion() = runBlocking<Unit> {
         repository.add(ShopItem(name = "Milk"))
         repository.add(ShopItem(name = "Bread"))
-        val items = repository.getShopList().first()
+        val items = repository.shopList.first()
         repository.delete(items.first())
         repository.add(ShopItem(name = "Eggs"))
 
-        val remainingItems = repository.getShopList().first()
+        val remainingItems = repository.shopList.first()
         assertEquals(listOf("Bread", "Eggs"), remainingItems.map { it.name })
         assertEquals(3, (items + remainingItems).map { it.id }.toSet().size)
     }
@@ -49,35 +49,35 @@ class RepositoryImplTest {
     fun editUpdatesFieldsAndStatusWithoutChangingOrder() = runBlocking<Unit> {
         repository.add(ShopItem(name = "Milk"))
         repository.add(ShopItem(name = "Bread"))
-        val items = repository.getShopList().first()
+        val items = repository.shopList.first()
         val editedItem = items.first().copy(name = "Oat milk", count = 2, enabled = true)
 
         repository.edit(editedItem)
 
         assertEquals(editedItem, repository.getShopItemById(editedItem.id))
-        assertEquals(listOf(editedItem, items.last()), repository.getShopList().first())
+        assertEquals(listOf(editedItem, items.last()), repository.shopList.first())
     }
 
     @Test
     fun deleteMatchesIdEvenWhenOtherFieldsDiffer() = runBlocking<Unit> {
         repository.add(ShopItem(name = "Milk"))
-        val item = repository.getShopList().first().single()
+        val item = repository.shopList.first().single()
 
         repository.delete(item.copy(name = "Changed name"))
         repository.delete(item)
 
-        assertTrue(repository.getShopList().first().isEmpty())
+        assertTrue(repository.shopList.first().isEmpty())
     }
 
     @Test
     fun returnedListIsASnapshot() = runBlocking<Unit> {
         repository.add(ShopItem(name = "Milk"))
-        val snapshot = repository.getShopList().first()
+        val snapshot = repository.shopList.first()
 
         repository.add(ShopItem(name = "Bread"))
 
         assertEquals(listOf("Milk"), snapshot.map { it.name })
-        assertEquals(2, repository.getShopList().first().size)
+        assertEquals(2, repository.shopList.first().size)
     }
 
     @Test(expected = NoSuchElementException::class)

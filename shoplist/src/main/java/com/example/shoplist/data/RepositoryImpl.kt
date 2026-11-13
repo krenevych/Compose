@@ -2,12 +2,12 @@ package com.example.shoplist.data
 
 import com.example.shoplist.domain.Repository
 import com.example.shoplist.domain.ShopItem
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import javax.inject.Inject
 
-class RepositoryImpl : Repository {
+class RepositoryImpl @Inject constructor() : Repository {
 
     private val items = mutableListOf<ShopItem>()
 
