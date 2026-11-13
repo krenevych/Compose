@@ -4,7 +4,7 @@ import com.example.shoplist.domain.Repository
 import com.example.shoplist.domain.ShopItem
 
 class ChangeShopItemStatusUseCase(private val repository: Repository) {
-    fun changeStatus(item: ShopItem) {
+    operator fun invoke(item: ShopItem) {
         val newItem = item.copy(enabled = !item.enabled)
         repository.edit(newItem)
     }

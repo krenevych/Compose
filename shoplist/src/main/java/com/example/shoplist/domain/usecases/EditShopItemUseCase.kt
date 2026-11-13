@@ -4,7 +4,7 @@ import com.example.shoplist.domain.Repository
 import com.example.shoplist.domain.ShopItem
 
 class EditShopItemUseCase(private val repository: Repository) {
-    fun edit(item: ShopItem) {
+    operator fun invoke(item: ShopItem) {
         repository.edit(item)
     }
 }

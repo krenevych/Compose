@@ -5,7 +5,7 @@ import com.example.shoplist.domain.ShopItem
 
 class GetShopListUseCase(private val repository: Repository) {
 
-    fun getShopList(): List<ShopItem> {
+    operator fun invoke(): List<ShopItem> {
         return repository.getShopList()
     }
 

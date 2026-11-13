@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import com.example.shoplist.data.RepositoryImpl
+import com.example.shoplist.domain.usecases.AddShopItemUseCase
 import com.example.shoplist.domain.usecases.GetShopListUseCase
 import com.example.shoplist.presentation.theme.ComposeTheme
 
@@ -16,6 +17,7 @@ class MainActivity : ComponentActivity() {
     // Навчальний етап: створюємо репозиторій тут, пізніше додамо DI.
     private val repository = RepositoryImpl()
     private val getShopListUseCase = GetShopListUseCase(repository)
+    private val addShopItemUseCase = AddShopItemUseCase(repository)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,7 +26,7 @@ class MainActivity : ComponentActivity() {
             ComposeTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     ShopListScreen(
-                        items = getShopListUseCase.getShopList(),
+                        items = getShopListUseCase(),
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
