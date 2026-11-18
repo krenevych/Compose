@@ -45,10 +45,12 @@ android {
         create("stub") {
             dimension = "dataSrc"
             applicationIdSuffix = ".stub"
+            versionNameSuffix = "-stub"
         }
         create("db") {
             dimension = "dataSrc"
             applicationIdSuffix = ".db"
+            versionNameSuffix = "-db"
         }
     }
 
